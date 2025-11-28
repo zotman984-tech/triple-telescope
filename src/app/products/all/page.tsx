@@ -345,34 +345,48 @@ function AllDestinationsContent() {
                 ) : (
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {paginatedItems.map((item, i) => (
-                                <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-shadow cursor-pointer group">
-                                    <div className="flex items-center gap-4 mb-6">
-                                        <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 shadow-sm">
-                                            {/* For regions, use the custom map image. For countries, use flagcdn */}
-                                            <img
-                                                src={activeTab === 'region' ? item.flag : (item.code ? `https://flagcdn.com/w80/${item.code.toLowerCase()}.png` : item.flag)}
-                                                alt={item.displayName}
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    // Fallback to UN flag if image fails
-                                                    (e.target as HTMLImageElement).src = 'https://flagcdn.com/w80/un.png';
-                                                }}
-                                            />
-                                        </div>
-                                        <h3 className="text-xl font-bold text-gray-900">{item.displayName}</h3>
-                                    </div>
+                            {paginatedItems.map((item, i) => {
+                                // Generate slug from display name (e.g. "United States" -> "united-states")
+                                const slug = item.displayName.toLowerCase()
+                                    .replace(/ /g, '-')
+                                    .replace(/[()]/g, '')
+                                    .replace(/&/g, 'and')
+                                    .replace(/--+/g, '-') // Replace multiple hyphens with single one
+                                    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
 
-                                    <div className="flex items-center justify-between">
-                                        <div className="text-gray-500 text-sm">
-                                            Starting at <span className="text-gray-900 font-bold text-lg">{formatPrice(item.price, item.currency)}</span>
+                                return (
+                                    <Link
+                                        href={`/products/best-esim-${slug}`}
+                                        key={i}
+                                        className="block bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-shadow cursor-pointer group"
+                                    >
+                                        <div className="flex items-center gap-4 mb-6">
+                                            <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 shadow-sm">
+                                                {/* For regions, use the custom map image. For countries, use flagcdn */}
+                                                <img
+                                                    src={activeTab === 'region' ? item.flag : (item.code ? `https://flagcdn.com/w80/${item.code.toLowerCase()}.png` : item.flag)}
+                                                    alt={item.displayName}
+                                                    className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        // Fallback to UN flag if image fails
+                                                        (e.target as HTMLImageElement).src = 'https://flagcdn.com/w80/un.png';
+                                                    }}
+                                                />
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-900">{item.displayName}</h3>
                                         </div>
-                                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
-                                            <ArrowRight className="w-4 h-4" />
+
+                                        <div className="flex items-center justify-between">
+                                            <div className="text-gray-500 text-sm">
+                                                Starting at <span className="text-gray-900 font-bold text-lg">{formatPrice(item.price, item.currency)}</span>
+                                            </div>
+                                            <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
+                                                <ArrowRight className="w-4 h-4" />
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            ))}
+                                    </Link>
+                                );
+                            })}
                         </div>
 
                         {/* Pagination */}
