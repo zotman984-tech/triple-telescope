@@ -152,21 +152,26 @@ function AllDestinationsContent() {
             filtered = products.filter((p: any) => p.type === type);
         }
 
-        // Group by country for local types
-        if (type === 'local') {
+        // Group by country for local and unlimited types
+        if (type === 'local' || type === 'unlimited') {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const grouped = filtered.reduce((acc: any, product: any) => {
-                if (!product.country) return acc;
-                if (!acc[product.country]) {
-                    acc[product.country] = {
-                        code: product.country,
+                // Use country if available, otherwise try to infer from region or name
+                // For unlimited, some might be regional (like Europe), so we need to handle that
+                const countryCode = product.country || (product.region && product.region.length === 2 ? product.region : null);
+
+                if (!countryCode) return acc;
+
+                if (!acc[countryCode]) {
+                    acc[countryCode] = {
+                        code: countryCode,
                         price: product.price,
                         currency: product.currency,
                         flag: product.countryFlag,
                     };
                 } else {
-                    if (product.price < acc[product.country].price) {
-                        acc[product.country].price = product.price;
+                    if (product.price < acc[countryCode].price) {
+                        acc[countryCode].price = product.price;
                     }
                 }
                 return acc;
