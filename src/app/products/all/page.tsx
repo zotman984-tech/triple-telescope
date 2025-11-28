@@ -349,12 +349,13 @@ function AllDestinationsContent() {
                                 <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-shadow cursor-pointer group">
                                     <div className="flex items-center gap-4 mb-6">
                                         <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 shadow-sm">
-                                            {/* Use flagcdn if country code exists, else use item.flag if it's a URL */}
+                                            {/* For regions, use the custom map image. For countries, use flagcdn */}
                                             <img
-                                                src={item.code ? `https://flagcdn.com/w80/${item.code.toLowerCase()}.png` : item.flag}
+                                                src={activeTab === 'region' ? item.flag : (item.code ? `https://flagcdn.com/w80/${item.code.toLowerCase()}.png` : item.flag)}
                                                 alt={item.displayName}
                                                 className="w-full h-full object-cover"
                                                 onError={(e) => {
+                                                    // Fallback to UN flag if image fails
                                                     (e.target as HTMLImageElement).src = 'https://flagcdn.com/w80/un.png';
                                                 }}
                                             />
