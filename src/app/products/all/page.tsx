@@ -107,6 +107,9 @@ function AllDestinationsContent() {
     };
 
     const getRegionName = (code: string) => {
+        // Extract region prefix (e.g., "EU" from "EU-30")
+        const prefix = code.split('-')[0].toUpperCase();
+
         const regionMap: Record<string, string> = {
             'EU': 'Europe',
             'AS': 'Asia',
@@ -114,12 +117,19 @@ function AllDestinationsContent() {
             'NA': 'North America',
             'SA': 'South America',
             'CA': 'Central America & Caribbean',
+            'CB': 'Caribbean',
             'ME': 'Middle East',
             'OC': 'Oceania / Pacific',
+            'AUNZ': 'Australia & New Zealand',
+            'CN': 'China',
+            'CNJPKR': 'China, Japan & Korea',
+            'SGMYTH': 'Singapore, Malaysia & Thailand',
+            'USCA': 'USA & Canada',
+            'SAAEQAKWOMBH': 'Saudi Arabia & Gulf States',
             'GLOBAL': 'Global',
             'WORLD': 'Worldwide'
         };
-        return regionMap[code.toUpperCase()] || code;
+        return regionMap[prefix] || code;
     };
 
     // Filter products by type
