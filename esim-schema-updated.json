@@ -1,0 +1,59 @@
+{
+    "kind": "collectionType",
+    "collectionName": "esims",
+    "info": {
+        "singularName": "esim",
+        "pluralName": "esims",
+        "displayName": "eSIM",
+        "description": "Purchased eSIMs"
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "user": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "plugin::users-permissions.user",
+            "inversedBy": "esims"
+        },
+        "product": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::product.product",
+            "inversedBy": "esims"
+        },
+        "esimAccessOrderId": {
+            "type": "string"
+        },
+        "iccid": {
+            "type": "string"
+        },
+        "qrcode": {
+            "type": "json"
+        },
+        "activationCode": {
+            "type": "string"
+        },
+        "smDpAddress": {
+            "type": "string"
+        },
+        "status": {
+            "type": "enumeration",
+            "enum": [
+                "pending",
+                "active",
+                "expired"
+            ]
+        },
+        "topups": {
+            "type": "component",
+            "repeatable": true,
+            "component": "esim.topup"
+        },
+        "stripeSessionId": {
+            "type": "string"
+        }
+    }
+}

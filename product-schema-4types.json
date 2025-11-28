@@ -1,0 +1,82 @@
+{
+    "kind": "collectionType",
+    "collectionName": "products",
+    "info": {
+        "singularName": "product",
+        "pluralName": "products",
+        "displayName": "Product",
+        "description": "eSIM Plans"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "name": {
+            "type": "string"
+        },
+        "type": {
+            "type": "enumeration",
+            "enum": [
+                "local",
+                "region",
+                "global",
+                "topup"
+            ]
+        },
+        "isTopUpAvailable": {
+            "type": "boolean"
+        },
+        "esimAccessPackageId": {
+            "type": "string",
+            "required": true,
+            "unique": true
+        },
+        "region": {
+            "type": "string"
+        },
+        "country": {
+            "type": "string"
+        },
+        "countryFlag": {
+            "type": "string"
+        },
+        "dataAmountGB": {
+            "type": "decimal"
+        },
+        "validityDays": {
+            "type": "integer"
+        },
+        "price": {
+            "type": "decimal"
+        },
+        "currency": {
+            "type": "string"
+        },
+        "shortDescription": {
+            "type": "text"
+        },
+        "longDescription": {
+            "type": "richtext"
+        },
+        "provider": {
+            "type": "string",
+            "default": "esimAccess"
+        },
+        "networkSpeed": {
+            "type": "string"
+        },
+        "compatibleDevices": {
+            "type": "json"
+        },
+        "networkOperators": {
+            "type": "json"
+        },
+        "esims": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::esim.esim",
+            "mappedBy": "product"
+        }
+    }
+}
