@@ -130,6 +130,17 @@ function AllDestinationsContent() {
         return regionMap[prefix] || code;
     };
 
+    const REGION_IMAGES: Record<string, string> = {
+        'EU': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Europe_green_light.svg/600px-Europe_green_light.svg.png',
+        'AS': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Asia_green_light.svg/600px-Asia_green_light.svg.png',
+        'AF': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Africa_green_light.svg/600px-Africa_green_light.svg.png',
+        'NA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/North_America_green_light.svg/600px-North_America_green_light.svg.png',
+        'SA': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/South_America_green_light.svg/600px-South_America_green_light.svg.png',
+        'OC': 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Oceania_green_light.svg/600px-Oceania_green_light.svg.png',
+        'ME': 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Middle_East_green_light.svg/600px-Middle_East_green_light.svg.png',
+        'GLOBAL': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/World_map_blank_without_borders.svg/600px-World_map_blank_without_borders.svg.png',
+    };
+
     // Filter products by type
     const getProductsByType = (type: string) => {
         let filtered = products;
@@ -199,7 +210,7 @@ function AllDestinationsContent() {
                         code: prefix,
                         price: product.price,
                         currency: product.currency,
-                        flag: product.countryFlag,
+                        flag: REGION_IMAGES[prefix] || product.countryFlag, // Use region map if available
                     };
                 } else {
                     if (product.price < acc[prefix].price) {
