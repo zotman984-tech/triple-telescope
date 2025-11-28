@@ -356,7 +356,7 @@ function AllDestinationsContent() {
 
                                 return (
                                     <Link
-                                        href={`/products/best-esim-${slug}`}
+                                        href={`/products/esim-${slug}`}
                                         key={i}
                                         className="block bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-shadow cursor-pointer group"
                                     >
