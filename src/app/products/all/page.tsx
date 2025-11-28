@@ -331,7 +331,7 @@ function AllDestinationsContent() {
                     </>
                 )}
 
-                {!loading && items.length === 0 && (
+                {!loading && allItems.length === 0 && (
                     <div className="text-center py-20 text-gray-500">
                         No destinations found.
                     </div>
