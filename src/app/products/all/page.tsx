@@ -1,21 +1,45 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, ArrowRight, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react';
+import { Search, ArrowRight, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { getProducts, Product } from '../../../lib/api';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
+import { Product } from '../../../lib/api';
 
 type FilterTab = 'local' | 'region' | 'global' | 'unlimited';
 
-export default function AllDestinations() {
+const TAB_MAPPING: Record<string, FilterTab> = {
+    '1': 'local',
+    '2': 'region',
+    '3': 'global',
+    '5': 'unlimited'
+};
+
+const REVERSE_TAB_MAPPING: Record<FilterTab, string> = {
+    'local': '1',
+    'region': '2',
+    'global': '3',
+    'unlimited': '5'
+};
+
+const ITEMS_PER_PAGE = 24;
+
+function AllDestinationsContent() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<FilterTab>('local');
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Filters state
-    // const [selectedData, setSelectedData] = useState<number | 'all'>('all');
-    // const [selectedValidity, setSelectedValidity] = useState<number | 'all'>('all');
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+
+    // Get active tab from URL or default to 'local'
+    const tabParam = searchParams.get('tab');
+    const activeTab: FilterTab = (tabParam && TAB_MAPPING[tabParam]) ? TAB_MAPPING[tabParam] : 'local';
+
+    // Get current page from URL or default to 1
+    const pageParam = searchParams.get('page');
+    const currentPage = Number(pageParam) || 1;
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -58,6 +82,20 @@ export default function AllDestinations() {
 
         fetchProducts();
     }, []);
+
+    const handleTabChange = (tab: FilterTab) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('tab', REVERSE_TAB_MAPPING[tab]);
+        params.set('page', '1'); // Reset to page 1
+        router.push(`${pathname}?${params.toString()}`);
+    };
+
+    const handlePageChange = (page: number) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', page.toString());
+        router.push(`${pathname}?${params.toString()}`);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const getCountryName = (code: string) => {
         try {
@@ -128,98 +166,25 @@ export default function AllDestinations() {
         }));
     };
 
-
-
-    // Get unique filter options
-    // const uniqueDataAmounts = Array.from(new Set(products.map(p => p.dataAmountGB).filter(Boolean))).sort((a, b) => a - b);
-    // const uniqueValidities = Array.from(new Set(products.map(p => p.validityDays).filter(Boolean))).sort((a, b) => a - b);
-
-    // Filter logic based on active tab, search, and additional filters
+    // Filter logic based on active tab, search
     const filteredItems = () => {
         const query = searchQuery.toLowerCase();
         let items = getProductsByType(activeTab);
 
         // Apply search filter
-        items = items.filter(item =>
-            item.displayName?.toLowerCase().includes(query) ||
-            item.code?.toLowerCase().includes(query)
-        );
-
-        // Apply additional filters (only for non-grouped items, or we need to filter BEFORE grouping?)
-        // The current structure groups 'local' items by country, losing individual product details like data/validity.
-        // If we want to filter by data/validity, we should probably filter the PRODUCTS first, then group.
-        // But the current UI shows COUNTRIES for 'local' tab, not products.
-        // So filtering 'local' tab by data/validity might be confusing if it hides the whole country?
-        // OR, does it mean "Show countries that have at least one product matching the filter"?
-
-        // Let's refactor getProductsByType to accept filters or filter before calling it.
-        // Actually, for 'local' tab, we display a list of COUNTRIES. 
-        // If I filter by "10GB", should I show countries that have a 10GB plan? Yes.
-
-        // Let's re-implement the filtering logic to be cleaner.
-
-        let filteredProducts = products;
-
-        // 1. Filter by Tab Type
-        if (activeTab === 'local') {
-            filteredProducts = filteredProducts.filter(p => (p.type === 'local' || p.type === 'topup') && p.country);
-        } else {
-            filteredProducts = filteredProducts.filter(p => p.type === activeTab);
-        }
-
-        // 2. Apply Search (on product name/country/region)
         if (query) {
-            filteredProducts = filteredProducts.filter(p =>
-                p.name?.toLowerCase().includes(query) ||
-                p.country?.toLowerCase().includes(query) ||
-                p.region?.toLowerCase().includes(query)
+            items = items.filter(item =>
+                item.displayName?.toLowerCase().includes(query) ||
+                item.code?.toLowerCase().includes(query)
             );
         }
 
-        // 3. Apply Filters
-        // if (selectedData !== 'all') {
-        //     filteredProducts = filteredProducts.filter(p => p.dataAmountGB === selectedData);
-        // }
-        // if (selectedValidity !== 'all') {
-        //     filteredProducts = filteredProducts.filter(p => p.validityDays === selectedValidity);
-        // }
-
-        // 4. Group/Format for Display
-        if (activeTab === 'local') {
-            const grouped = filteredProducts.reduce((acc, product) => {
-                if (!product.country) return acc;
-                // Only consider 'local' type for grouping (double check)
-                if (product.type !== 'local') return acc;
-
-                if (!acc[product.country]) {
-                    acc[product.country] = {
-                        code: product.country,
-                        price: product.price,
-                        currency: product.currency,
-                        flag: product.countryFlag,
-                        displayName: getCountryName(product.country)
-                    };
-                } else {
-                    if (product.price < acc[product.country].price) {
-                        acc[product.country].price = product.price;
-                    }
-                }
-                return acc;
-            }, {} as Record<string, { code: string, price: number, currency: string, flag: string, displayName: string }>);
-
-            return Object.values(grouped).sort((a, b) => a.displayName.localeCompare(b.displayName));
-        } else {
-            return filteredProducts.map(p => ({
-                displayName: p.name,
-                code: p.region || p.country,
-                price: p.price,
-                currency: p.currency,
-                flag: p.countryFlag
-            }));
-        }
+        return items;
     };
 
-    const items = filteredItems();
+    const allItems = filteredItems();
+    const totalPages = Math.ceil(allItems.length / ITEMS_PER_PAGE);
+    const paginatedItems = allItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     const formatPrice = (price: number, currency: string) => {
         const value = price / 100;
@@ -254,7 +219,7 @@ export default function AllDestinations() {
                 <div className="flex justify-center mb-8 overflow-x-auto">
                     <div className="bg-gray-100 p-1 rounded-full inline-flex gap-1">
                         <button
-                            onClick={() => setActiveTab('local')}
+                            onClick={() => handleTabChange('local')}
                             className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'local'
                                 ? 'bg-black text-white shadow-md'
                                 : 'text-gray-600 hover:text-gray-900'
@@ -263,7 +228,7 @@ export default function AllDestinations() {
                             Local
                         </button>
                         <button
-                            onClick={() => setActiveTab('region')}
+                            onClick={() => handleTabChange('region')}
                             className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'region'
                                 ? 'bg-black text-white shadow-md'
                                 : 'text-gray-600 hover:text-gray-900'
@@ -272,7 +237,7 @@ export default function AllDestinations() {
                             Region
                         </button>
                         <button
-                            onClick={() => setActiveTab('global')}
+                            onClick={() => handleTabChange('global')}
                             className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'global'
                                 ? 'bg-black text-white shadow-md'
                                 : 'text-gray-600 hover:text-gray-900'
@@ -281,7 +246,7 @@ export default function AllDestinations() {
                             Global
                         </button>
                         <button
-                            onClick={() => setActiveTab('unlimited')}
+                            onClick={() => handleTabChange('unlimited')}
                             className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'unlimited'
                                 ? 'bg-black text-white shadow-md'
                                 : 'text-gray-600 hover:text-gray-900'
@@ -291,31 +256,6 @@ export default function AllDestinations() {
                         </button>
                     </div>
                 </div>
-
-                {/* Filters */}
-                {/* <div className="flex flex-wrap gap-4 justify-center mb-8">
-                    <select 
-                        value={selectedData} 
-                        onChange={(e) => setSelectedData(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                        className="px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                    >
-                        <option value="all">Any Data Amount</option>
-                        {uniqueDataAmounts.map(amount => (
-                            <option key={amount} value={amount}>{amount} GB</option>
-                        ))}
-                    </select>
-
-                    <select 
-                        value={selectedValidity} 
-                        onChange={(e) => setSelectedValidity(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-                        className="px-4 py-2 rounded-lg border border-gray-200 bg-gray-50 text-sm font-medium text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
-                    >
-                        <option value="all">Any Validity</option>
-                        {uniqueValidities.map(days => (
-                            <option key={days} value={days}>{days} Days</option>
-                        ))}
-                    </select>
-                </div> */}
 
                 {/* Search */}
                 <div className="max-w-xl mx-auto mb-12 relative">
@@ -335,35 +275,60 @@ export default function AllDestinations() {
                         <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {items.map((item, i) => (
-                            <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-shadow cursor-pointer group">
-                                <div className="flex items-center gap-4 mb-6">
-                                    <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 shadow-sm">
-                                        {/* Use flagcdn if country code exists, else use item.flag if it's a URL */}
-                                        <img
-                                            src={item.code ? `https://flagcdn.com/w80/${item.code.toLowerCase()}.png` : item.flag}
-                                            alt={item.displayName}
-                                            className="w-full h-full object-cover"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).src = 'https://flagcdn.com/w80/un.png';
-                                            }}
-                                        />
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {paginatedItems.map((item, i) => (
+                                <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-shadow cursor-pointer group">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 shadow-sm">
+                                            {/* Use flagcdn if country code exists, else use item.flag if it's a URL */}
+                                            <img
+                                                src={item.code ? `https://flagcdn.com/w80/${item.code.toLowerCase()}.png` : item.flag}
+                                                alt={item.displayName}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = 'https://flagcdn.com/w80/un.png';
+                                                }}
+                                            />
+                                        </div>
+                                        <h3 className="text-xl font-bold text-gray-900">{item.displayName}</h3>
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-900">{item.displayName}</h3>
-                                </div>
 
-                                <div className="flex items-center justify-between">
-                                    <div className="text-gray-500 text-sm">
-                                        Starting at <span className="text-gray-900 font-bold text-lg">{formatPrice(item.price, item.currency)}</span>
-                                    </div>
-                                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
-                                        <ArrowRight className="w-4 h-4" />
+                                    <div className="flex items-center justify-between">
+                                        <div className="text-gray-500 text-sm">
+                                            Starting at <span className="text-gray-900 font-bold text-lg">{formatPrice(item.price, item.currency)}</span>
+                                        </div>
+                                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center group-hover:bg-black group-hover:text-white transition-colors">
+                                            <ArrowRight className="w-4 h-4" />
+                                        </div>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center items-center gap-4 mt-12">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className={`p-2 rounded-full border ${currentPage === 1 ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+                                >
+                                    <ChevronLeft className="w-5 h-5" />
+                                </button>
+                                <span className="text-gray-600 font-medium">
+                                    Page {currentPage} of {totalPages}
+                                </span>
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className={`p-2 rounded-full border ${currentPage === totalPages ? 'text-gray-300 border-gray-200 cursor-not-allowed' : 'text-gray-600 border-gray-300 hover:bg-gray-50'}`}
+                                >
+                                    <ChevronRight className="w-5 h-5" />
+                                </button>
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 )}
 
                 {!loading && items.length === 0 && (
@@ -373,5 +338,13 @@ export default function AllDestinations() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function AllDestinations() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <AllDestinationsContent />
+        </Suspense>
     );
 }
