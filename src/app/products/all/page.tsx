@@ -170,7 +170,7 @@ function AllDestinationsContent() {
         // For region/global/unlimited, show as-is
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return filtered.map((p: any) => ({
-            displayName: p.region ? getRegionName(p.region) : p.name,
+            displayName: p.name,
             code: p.region || p.country,
             price: p.price,
             currency: p.currency,
