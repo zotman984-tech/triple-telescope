@@ -144,7 +144,16 @@ function AllDestinationsContent() {
             // Only include local type (excluding unlimited which are now also local)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             filtered = products.filter((p: any) => p.type === 'local' && p.country && !p.isUnlimited);
+        } else if (type === 'region') {
+            // Only include region type
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            filtered = products.filter((p: any) => p.type === 'region' && p.region);
+        } else if (type === 'global') {
+            // Only include global type
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            filtered = products.filter((p: any) => p.type === 'global');
         } else {
+            // Fallback for any other types
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             filtered = products.filter((p: any) => p.type === type);
         }
