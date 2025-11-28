@@ -106,6 +106,22 @@ function AllDestinationsContent() {
         }
     };
 
+    const getRegionName = (code: string) => {
+        const regionMap: Record<string, string> = {
+            'EU': 'Europe',
+            'AS': 'Asia',
+            'AF': 'Africa',
+            'NA': 'North America',
+            'SA': 'South America',
+            'CA': 'Central America & Caribbean',
+            'ME': 'Middle East',
+            'OC': 'Oceania / Pacific',
+            'GLOBAL': 'Global',
+            'WORLD': 'Worldwide'
+        };
+        return regionMap[code.toUpperCase()] || code;
+    };
+
     // Filter products by type
     const getProductsByType = (type: string) => {
         let filtered = products;
@@ -154,7 +170,7 @@ function AllDestinationsContent() {
         // For region/global/unlimited, show as-is
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return filtered.map((p: any) => ({
-            displayName: p.name,
+            displayName: p.region ? getRegionName(p.region) : p.name,
             code: p.region || p.country,
             price: p.price,
             currency: p.currency,
