@@ -32,18 +32,18 @@ export default function Home() {
             </span>
           </h1>
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Instant eSIM delivery for 190+ countries. No physical SIM required. 
+            Instant eSIM delivery for 190+ countries. No physical SIM required.
             Keep your number, get data instantly.
           </p>
-          
+
           {/* Search Bar */}
           <div className="max-w-xl mx-auto relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
             <div className="relative bg-white p-2 rounded-2xl shadow-xl flex items-center border border-gray-100">
               <Search className="w-6 h-6 text-gray-400 ml-3" />
-              <input 
-                type="text" 
-                placeholder="Where are you traveling?" 
+              <input
+                type="text"
+                placeholder="Where are you traveling?"
                 className="flex-1 p-3 outline-none text-gray-700 placeholder-gray-400 text-lg"
               />
               <button className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors">
@@ -52,7 +52,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
+
         {/* Background Elements */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden pointer-events-none">
           <div className="absolute top-20 left-10 w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
@@ -86,7 +86,11 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-gray-900 mb-12 text-center">Popular Destinations</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {['USA', 'Japan', 'France', 'Turkey', 'Thailand', 'UK', 'Italy', 'Spain'].map((country) => (
-              <div key={country} className="group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer">
+              <Link
+                href={`/products/esim-${country.toLowerCase()}`}
+                key={country}
+                className="group relative overflow-hidden rounded-2xl aspect-[4/3] cursor-pointer block"
+              >
                 <div className="absolute inset-0 bg-gray-200 group-hover:scale-110 transition-transform duration-500">
                   {/* Placeholder for country image */}
                   <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300"></div>
@@ -99,7 +103,7 @@ export default function Home() {
                     From $4.50
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
