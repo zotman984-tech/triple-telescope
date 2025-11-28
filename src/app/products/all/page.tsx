@@ -182,16 +182,20 @@ function AllDestinationsContent() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const grouped = filtered.reduce((acc: any, product: any) => {
                 if (!product.region) return acc;
-                if (!acc[product.region]) {
-                    acc[product.region] = {
-                        code: product.region,
+
+                // Extract prefix (EU from EU-30, AS from AS-12, etc.)
+                const prefix = product.region.split('-')[0].toUpperCase();
+
+                if (!acc[prefix]) {
+                    acc[prefix] = {
+                        code: prefix,
                         price: product.price,
                         currency: product.currency,
                         flag: product.countryFlag,
                     };
                 } else {
-                    if (product.price < acc[product.region].price) {
-                        acc[product.region].price = product.price;
+                    if (product.price < acc[prefix].price) {
+                        acc[prefix].price = product.price;
                     }
                 }
                 return acc;
