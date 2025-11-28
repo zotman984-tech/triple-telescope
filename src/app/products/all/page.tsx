@@ -167,7 +167,35 @@ function AllDestinationsContent() {
             })).sort((a: any, b: any) => a.displayName.localeCompare(b.displayName));
         }
 
-        // For region/global/unlimited, show as-is
+        // Group by region for region types
+        if (type === 'region') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const grouped = filtered.reduce((acc: any, product: any) => {
+                if (!product.region) return acc;
+                if (!acc[product.region]) {
+                    acc[product.region] = {
+                        code: product.region,
+                        price: product.price,
+                        currency: product.currency,
+                        flag: product.countryFlag,
+                    };
+                } else {
+                    if (product.price < acc[product.region].price) {
+                        acc[product.region].price = product.price;
+                    }
+                }
+                return acc;
+            }, {} as Record<string, { code: string, price: number, currency: string, flag: string }>);
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            return Object.values(grouped).map((group: any) => ({
+                ...group,
+                displayName: getRegionName(group.code)
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            })).sort((a: any, b: any) => a.displayName.localeCompare(b.displayName));
+        }
+
+        // For global/unlimited, show as-is
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return filtered.map((p: any) => ({
             displayName: p.name,
