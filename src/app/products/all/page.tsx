@@ -288,7 +288,7 @@ function AllDestinationsContent() {
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">All Destinations</h1>
                     <p className="text-gray-600 max-w-2xl mx-auto">
-                        Find the best data plans in over 190+ countries — and enjoy easy and safe internet access wherever you go.
+                        Find data plans in over 190+ countries — and enjoy easy and safe internet access wherever you go.
                     </p>
                 </div>
 

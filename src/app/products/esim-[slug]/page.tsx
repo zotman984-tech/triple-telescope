@@ -14,10 +14,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         .join(' ');
 
     return {
-        title: `Best eSIM for ${name} | High Speed Data Plans`,
+        title: `eSIM for ${name} | High Speed Data Plans`,
         description: `Get instant eSIM data plans for ${name}. No roaming fees, keep your number, and stay connected with local rates.`,
         openGraph: {
-            title: `Best eSIM for ${name} | High Speed Data Plans`,
+            title: `eSIM for ${name} | High Speed Data Plans`,
             description: `Get instant eSIM data plans for ${name}. No roaming fees, keep your number, and stay connected with local rates.`,
         },
     };
