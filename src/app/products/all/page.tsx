@@ -6,19 +6,17 @@ import Link from 'next/link';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Product } from '../../../lib/api';
 
-type FilterTab = 'local' | 'region' | 'global' | 'unlimited';
+type FilterTab = 'local' | 'region' | 'unlimited';
 
 const TAB_MAPPING: Record<string, FilterTab> = {
     '1': 'local',
     '2': 'region',
-    '3': 'global',
     '5': 'unlimited'
 };
 
 const REVERSE_TAB_MAPPING: Record<FilterTab, string> = {
     'local': '1',
     'region': '2',
-    'global': '3',
     'unlimited': '5'
 };
 
@@ -148,10 +146,6 @@ function AllDestinationsContent() {
             // Only include region type
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             filtered = products.filter((p: any) => p.type === 'region' && p.region);
-        } else if (type === 'global') {
-            // Only include global type
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            filtered = products.filter((p: any) => p.type === 'global');
         } else {
             // Fallback for any other types
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -302,15 +296,6 @@ function AllDestinationsContent() {
                                 }`}
                         >
                             Region
-                        </button>
-                        <button
-                            onClick={() => handleTabChange('global')}
-                            className={`px-6 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeTab === 'global'
-                                ? 'bg-black text-white shadow-md'
-                                : 'text-gray-600 hover:text-gray-900'
-                                }`}
-                        >
-                            Global
                         </button>
                         <button
                             onClick={() => handleTabChange('unlimited')}
